@@ -14,18 +14,18 @@ This project uses a soil carbon dataset derived from McNicol et al. (2019), a pu
 
 In this proposal, I ask whether mean soil organic carbon differs between mineral and organic soils at the pedon level. The response variable is total carbon to 1 m depth (total_c_1m), and the grouping variable is soil type (mineral vs. organic). This question is motivated by the expectation that organic soils typically store more carbon, although initial exploration suggests the pattern may be more complex.
 
+In addition to this primary question, I will also explore how soil carbon varies across different soil orders, and whether there is a relationship between soil carbon and latitude. These additional questions allow for the application of a broader set of statistical methods, including ANOVA and linear regression, and help provide a more comprehensive understanding of the factors influencing soil carbon storage.
+
 Because the dataset is structured at the horizon level (each row represents a soil horizon), multiple observations correspond to a single pedon. Therefore, the analysis is conducted at the pedon level so that each soil profile contributes one independent observation.
+
+
 ## 2. Data
-```{r}
+```{r, results='hide'}
 # load data
 df <- read_csv("../data/data_final_project.csv")
 
 # basic structure
 glimpse(df)
-
-# number of rows and columns
-nrow(df)
-ncol(df)
 
 # check soil horizon types
 df %>%
@@ -89,6 +89,8 @@ t.test(total_c_1m ~ pedon_type, data = final_df) %>%
 This analysis compares the mean of a continuous variable (total_c_1m) between two groups (mineral vs. organic soils), so a two-sample t-test is appropriate. The key results from this test include the group means, the mean difference, a confidence interval, and a p-value to evaluate whether the observed difference in group means is statistically significant.
 
 Based on the exploratory results, mineral soils appear to have higher carbon values, and statistical testing is used to evaluate whether this observed difference is statistically significant.
+
+The dditional questions will be explored further in the full analysis.
 
 ## Reference
 McNicol, G., Bulmer, C., D’Amore, D., Sanborn, P., Saunders, S., Giesbrecht, I., Gonzalez Arriola, S., Bidlack, A., Butman, D., & Buma, B. (2019). Large, climate-sensitive soil carbon stocks mapped with pedology-informed machine learning in the North Pacific coastal temperate rainforest. Environmental Research Letters, 14, 014004. https://doi.org/10.1088/1748-9326/aaed52 
