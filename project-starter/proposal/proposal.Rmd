@@ -1,6 +1,6 @@
 ---
 title: "Project proposal"
-author: "Team name"
+author: "Wen"
 output: html_document
 ---
 
@@ -9,8 +9,76 @@ library(tidyverse)
 library(broom)
 ```
 
-## 1. Data
+## 1.  Read Data
+```{r}
+df <- read_csv("data_final_project.csv")
+```
+
+## Inspect the data
+
+```{r}
+# basic structure
+glimpse(df)
+
+# number of rows and columns
+nrow(df)
+ncol(df)
+
+```
+
+The dataset contains 6,868 observations and 26 variables. Each row represents a soil horizon, meaning that multiple rows correspond to a single pedon. Therefore, aggregation to the pedon level is required for this analysis.
 
 ## 2. Exploratory Visualization
+```{r}
+# classify pedons based on horizon types
+pedon_class <- df %>%
+  mutate(horizon_type = tolower(horizon_type)) %>%   
+  group_by(pedon_id) %>%
+  summarise(
+    has_organic = any(horizon_type == "organic", na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    pedon_type = ifelse(has_organic, "organic", "mineral")
+  )
+
+# extract pedon-level carbon values
+pedon_carbon <- df %>%
+  filter(pedon_start == TRUE) %>%
+  select(pedon_id, total_c_1m) %>%
+  filter(!is.na(total_c_1m))
+
+# combine
+final_df <- pedon_class %>%
+  left_join(pedon_carbon, by = "pedon_id")
+
+# plot
+ggplot(final_df, aes(x = pedon_type, y = total_c_1m, fill = pedon_type)) +
+  geom_boxplot(alpha = 0.7) +
+  geom_jitter(width = 0.1, alpha = 0.4) +
+  theme_classic() +
+  labs(
+    title = "Soil carbon by pedon type",
+    x = "Pedon type",
+    y = "Total carbon (0–1 m)"
+  ) +
+  theme(legend.position = "none")
+```
+
+This exploratory plot compares total soil carbon (to 1 m depth) between organic and mineral soils at the pedon level. Because the original dataset is structured at the horizon level, the data were aggregated so that each pedon contributes a single observation.
+
+The boxplot shows that mineral soils tend to have higher median carbon values than organic soils, although both groups exhibit substantial variability and overlap. This pattern is somewhat unexpected and suggests that the relationship between soil type and carbon storage may be more complex than initially assumed, motivating further statistical testing to determine whether the observed difference is significant.
 
 ## 3. Possible question and method
+
+**Research question:**
+
+Is mean soil organic carbon (total_c_1m) different between mineral and organic soils at the pedon level?
+
+```{r}
+t.test(total_c_1m ~ pedon_type, data = final_df) %>%
+  tidy()
+```
+
+
+This question compares the mean of a continuous variable between two groups, so a two-sample t-test is appropriate. The analysis is conducted at the pedon level to ensure that each observation represents an independent soil profile. Based on the exploratory visualization, mineral soils appear to have higher median carbon values, although there is substantial variability and overlap between groups.
