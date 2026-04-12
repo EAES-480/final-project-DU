@@ -76,7 +76,9 @@ ggplot(final_df, aes(x = pedon_type, y = total_c_1m, fill = pedon_type)) +
   theme(legend.position = "none")
 ```
 
-The boxplot compares soil carbon between mineral and organic soils. Mineral soils appear to have higher median carbon values, although there is substantial variability and overlap between groups. This pattern is somewhat unexpected and suggests that the relationship between soil type and carbon storage may be more complex than initially assumed.
+The boxplot compares soil carbon between mineral and organic soils. The individual data points are shown to illustrate the distribution and variability within each group, providing additional context beyond the summary statistics displayed by the boxplot.
+
+Mineral soils appear to have higher median carbon values, although there is substantial variability and overlap between groups. This pattern is somewhat unexpected and suggests that the relationship between soil type and carbon storage may be more complex than initially assumed. 
 
 ```{r}
 # t-test
