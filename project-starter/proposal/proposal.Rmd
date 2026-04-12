@@ -90,7 +90,7 @@ This analysis compares the mean of a continuous variable (total_c_1m) between tw
 
 Based on the exploratory results, mineral soils appear to have higher carbon values, and statistical testing is used to evaluate whether this observed difference is statistically significant.
 
-The dditional questions will be explored further in the full analysis.
+The additional questions will be explored further in the full analysis.
 
 ## Reference
 McNicol, G., Bulmer, C., D’Amore, D., Sanborn, P., Saunders, S., Giesbrecht, I., Gonzalez Arriola, S., Bidlack, A., Butman, D., & Buma, B. (2019). Large, climate-sensitive soil carbon stocks mapped with pedology-informed machine learning in the North Pacific coastal temperate rainforest. Environmental Research Letters, 14, 014004. https://doi.org/10.1088/1748-9326/aaed52 
