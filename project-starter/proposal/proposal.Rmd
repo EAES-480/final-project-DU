@@ -1,6 +1,6 @@
 ---
 title: "Project proposal"
-author: "Wen"
+author: "Wen Du"
 output: html_document
 ---
 
@@ -8,15 +8,18 @@ output: html_document
 library(tidyverse)
 library(broom)
 ```
+## 1.  Introduction
 
-## 1.  Read Data
+This project uses a soil carbon dataset derived from McNicol et al. (2019), a published study of soil organic carbon stocks in the North Pacific coastal temperate rainforest. The study region spans southeast Alaska and coastal British Columbia, and the original research compiled more than 1,300 soil profiles (pedons) to estimate soil organic carbon stocks to 1 m depth. Soil organic carbon is an important component of the global carbon cycle, so understanding how it varies across soil types can help improve our understanding of carbon storage and ecosystem processes.
+
+In this proposal, I ask whether mean soil organic carbon differs between mineral and organic soils at the pedon level. The response variable is total carbon to 1 m depth (total_c_1m), and the grouping variable is soil type (mineral vs. organic). This question is motivated by the expectation that organic soils typically store more carbon, although initial exploration suggests the pattern may be more complex.
+
+Because the dataset is structured at the horizon level (each row represents a soil horizon), multiple observations correspond to a single pedon. Therefore, the analysis is conducted at the pedon level so that each soil profile contributes one independent observation.
+## 2. Data
 ```{r}
-df <- read_csv("data_final_project.csv")
-```
+# load data
+df <- read_csv("../data/data_final_project.csv")
 
-## Inspect the data
-
-```{r}
 # basic structure
 glimpse(df)
 
@@ -24,35 +27,43 @@ glimpse(df)
 nrow(df)
 ncol(df)
 
+# check soil horizon types
+df %>%
+  count(horizon_type)
 ```
 
-The dataset contains 6,868 observations and 26 variables. Each row represents a soil horizon, meaning that multiple rows correspond to a single pedon. Therefore, aggregation to the pedon level is required for this analysis.
+The dataset contains 6,868 observations and 26 variables. Each row represents a soil horizon, meaning that multiple rows correspond to a single pedon. Key variables include pedon_id (soil profile identifier), horizon_type (mineral or organic), and total_c_1m (total soil carbon to 1 m depth). Because the research question focuses on carbon storage per soil profile, the analysis must be conducted at the pedon level rather than the horizon level. Therefore, each pedon represents the unit of analysis, rather than individual soil horizons.
 
-## 2. Exploratory Visualization
+## 3. Data analysis plan
 ```{r}
-# classify pedons based on horizon types
-pedon_class <- df %>%
-  mutate(horizon_type = tolower(horizon_type)) %>%   
-  group_by(pedon_id) %>%
-  summarise(
-    has_organic = any(horizon_type == "organic", na.rm = TRUE),
-    .groups = "drop"
-  ) %>%
-  mutate(
-    pedon_type = ifelse(has_organic, "organic", "mineral")
-  )
-
-# extract pedon-level carbon values
+# keep one carbon value per pedon
 pedon_carbon <- df %>%
   filter(pedon_start == TRUE) %>%
-  select(pedon_id, total_c_1m) %>%
-  filter(!is.na(total_c_1m))
+  select(pedon_id, total_c_1m)
 
-# combine
-final_df <- pedon_class %>%
-  left_join(pedon_carbon, by = "pedon_id")
+# classify pedons based on whether they contain organic horizons
+pedon_type <- df %>%
+  select(pedon_id, horizon_type) %>%
+  mutate(horizon_type = tolower(horizon_type)) %>%
+  group_by(pedon_id) %>%
+  summarise(
+    pedon_type = if_else(any(horizon_type == "organic", na.rm = TRUE),
+                         "organic", "mineral"),
+    .groups = "drop"
+  )
 
-# plot
+# combine datasets
+final_df <- left_join(pedon_carbon, pedon_type, by = "pedon_id")
+
+# check group sizes
+final_df %>%
+  count(pedon_type)
+```
+The data are aggregated so that each pedon contributes one observation, ensuring that the unit of analysis is consistent and that observations are independent.
+
+
+```{r}
+# exploratory plot
 ggplot(final_df, aes(x = pedon_type, y = total_c_1m, fill = pedon_type)) +
   geom_boxplot(alpha = 0.7) +
   geom_jitter(width = 0.1, alpha = 0.4) +
@@ -65,20 +76,17 @@ ggplot(final_df, aes(x = pedon_type, y = total_c_1m, fill = pedon_type)) +
   theme(legend.position = "none")
 ```
 
-This exploratory plot compares total soil carbon (to 1 m depth) between organic and mineral soils at the pedon level. Because the original dataset is structured at the horizon level, the data were aggregated so that each pedon contributes a single observation.
-
-The boxplot shows that mineral soils tend to have higher median carbon values than organic soils, although both groups exhibit substantial variability and overlap. This pattern is somewhat unexpected and suggests that the relationship between soil type and carbon storage may be more complex than initially assumed, motivating further statistical testing to determine whether the observed difference is significant.
-
-## 3. Possible question and method
-
-**Research question:**
-
-Is mean soil organic carbon (total_c_1m) different between mineral and organic soils at the pedon level?
+The boxplot compares soil carbon between mineral and organic soils. Mineral soils appear to have higher median carbon values, although there is substantial variability and overlap between groups. This pattern is somewhat unexpected and suggests that the relationship between soil type and carbon storage may be more complex than initially assumed.
 
 ```{r}
+# t-test
 t.test(total_c_1m ~ pedon_type, data = final_df) %>%
   tidy()
 ```
 
+This analysis compares the mean of a continuous variable (total_c_1m) between two groups (mineral vs. organic soils), so a two-sample t-test is appropriate. The key results from this test include the group means, the mean difference, a confidence interval, and a p-value to evaluate whether the observed difference in group means is statistically significant.
 
-This question compares the mean of a continuous variable between two groups, so a two-sample t-test is appropriate. The analysis is conducted at the pedon level to ensure that each observation represents an independent soil profile. Based on the exploratory visualization, mineral soils appear to have higher median carbon values, although there is substantial variability and overlap between groups.
+Based on the exploratory results, mineral soils appear to have higher carbon values, and statistical testing is used to evaluate whether this observed difference is statistically significant.
+
+## Reference
+McNicol, G., Bulmer, C., D’Amore, D., Sanborn, P., Saunders, S., Giesbrecht, I., Gonzalez Arriola, S., Bidlack, A., Butman, D., & Buma, B. (2019). Large, climate-sensitive soil carbon stocks mapped with pedology-informed machine learning in the North Pacific coastal temperate rainforest. Environmental Research Letters, 14, 014004. https://doi.org/10.1088/1748-9326/aaed52 
