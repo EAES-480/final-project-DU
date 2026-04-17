@@ -4,6 +4,12 @@ author: "Wen Du"
 output: html_document
 ---
 
+> GM Grade: 19/20 - excellent work, Wen! Just see my single warning below about the way you distinguish between organic and mineral soils.
+
+Description: 8/8
+Content: 9/10
+Quality: 2/2
+
 ```{r load-packages, message = FALSE}
 library(tidyverse)
 library(broom)
@@ -59,6 +65,9 @@ final_df <- left_join(pedon_carbon, pedon_type, by = "pedon_id")
 final_df %>%
   count(pedon_type)
 ```
+
+> GM: -1, deducting one point from content here. Be careful, this approach means if a single organic horizon occurs within a profile then the entire pedon_id gets assigned organic. Mineral soils very frequently contain organic horizons in this region, so this is not the best criteria for making a full profile mineral vs. organic distinction. I recommend either using the soil order (Histosol and Folisol are organic, the others are mineral). After that, you could 1) sum total 1m carbon in each soil order, and then 2) distinguish from mineral horizon and organic horizon carbon within the mineral soils. It could lead to some interesting insights about how important organic horizon storage is even in mineral soils in the region.
+
 The data are aggregated so that each pedon contributes one observation, ensuring that the unit of analysis is consistent and that observations are independent.
 
 
