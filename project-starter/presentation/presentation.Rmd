@@ -1,7 +1,6 @@
 ---
-title: "Presentation title"
-subtitle: "Presentation subtitle (if any)"
-author: "Team name <br> Names of team members"
+title: "Soil Carbon Variation in a Coastal Temperate Rainforest"
+author: "Wen Du"
 institute: "University of Illinois at Chicago"
 date: "`r Sys.Date()`"
 output:
@@ -18,10 +17,9 @@ output:
 ```{r load-packages, include = FALSE}
 # Add any additional packages you need to this chunk
 library(tidyverse)
-library(tidymodels)
-library(palmerpenguins)
 library(knitr)
 library(xaringanthemer)
+library(broom)
 ```
 
 ```{r setup, include=FALSE}
@@ -30,12 +28,34 @@ knitr::opts_chunk$set(fig.retina = 3, dpi = 300, fig.width = 6, fig.asp = 0.618,
 ```
 
 ```{r load-data, include=FALSE}
-# Load your data here
+# 1. Load your data here
+df <- read_csv("../data/data_final_project.csv")
+
+# 2. Create Pedon-level Dataset
+pedon_df <- df %>%
+  filter(pedon_start == TRUE) %>%
+  mutate(
+    order_group = case_when(
+      str_detect(order, regex("Histosol|Folisol|Mesisol|Humisol|Cryo", ignore_case = TRUE)) ~ "Organic soils",
+      str_detect(order, regex("Podzol", ignore_case = TRUE)) ~ "Podzol",
+      str_detect(order, regex("Brunisol|Brunisolic", ignore_case = TRUE)) ~ "Brunisol",
+      str_detect(order, regex("Gleysol|Gleysolic", ignore_case = TRUE)) ~ "Gleysol",
+      str_detect(order, regex("Regosol|Regosolic", ignore_case = TRUE)) ~ "Regosol",
+      TRUE ~ "Other"
+    )
+  ) %>%
+  select(pedon_id, order, order_group, total_c_1m, lat) %>%
+  filter(!is.na(total_c_1m), !is.na(order_group))
+# check structure
+glimpse(pedon_df)
+
+# check sample sizes
+pedon_df %>% count(order)
 ```
 
 ```{r}
 style_xaringan(
-  title_slide_background_image = "img/confetti.jpg"
+  title_slide_background_image = "img/tree-soil.png"
 )
 ```
 
@@ -48,131 +68,94 @@ class: center, middle
 
 class: inverse, center, middle
 
-# Section title
+# Soil Carbon Variation Across Soil Types and Latitude
 
+### data from the North Pacific coastal temperate rainforest
 ---
 
-# Hello World
+# Research Questions
 
-- Click the `Knit` button to compile your presentation
+- Do soil carbon values differ across soil types?
 
-- Make sure to commit and push all resulting files to your GitHub repo
+- Is there a relationship between latitude and soil carbon?
 
+- Does this relationship vary among soil types?
+
+- How important are organic horizons in mineral soils?
 ---
 
-class: inverse, middle, center
+# Data & Approach
 
-# Using xaringan
+- Dataset: North Pacific Coastal temperate rainforest (McNicol et al., 2019)
 
----
+- Analysis at **pedon level**
 
-# xaringan
+- Soil classified by **soil order** (not horizons)
 
-- The presentation is created using the `xaringan` package
+- Methods:
 
-- Use `---` to separate slides and `--` for incremental builds
+  - Compare soil carbon across soil types (ANOVA)
 
---
+  - Examine relationship with latitude (regression)
 
-- Like this
-
----
-
-# Layouts
-
-You can use plain text
-
-- or bullet points
-
-.pull-left[
-or text in two columns $^*$
-]
-.pull-right[
-- like
-- this
-]
-
-.footnote[
-[*] And add footnotes
-]
+  - Test whether this relationship differs across soil types
 
 ---
+# Soil Type Differences
 
-# Code
 
-```{r boring-regression}
-# a boring regression
-model <- lm(dist ~ speed, data = cars)
-tidy(model)
-glance(model)
+
+```{r echo = FALSE, out.width = "60%", fig.align = "center"}
+include_graphics("img/boxplot.png")
+```
+- Strong differences across soil groups
+- Organic soils show highest carbon
+- ANOVA: p < 2e-16
+---
+
+# Latitude vs Soil Carbon
+```{r castle, echo = FALSE, out.width = "60%", fig.align = "center"}
+include_graphics("img/regression-plot.png")
 ```
 
----
-
-# Plots
-
-```{r recode-species, echo = FALSE}
-# In this chunk I'm doing a bunch of analysis that I don't want to present 
-# in my slides. But I need the resulting data frame for a plot I want to present.
-iris_modified <- iris %>%
-  mutate(Species = fct_other(Species, keep = "setosa"))
-```
-
-```{r plot-iris, echo = FALSE}
-# Code hidden with echo = FALSE
-# Uses modified iris dataset from previous chunk
-# Play around with height and width until you're happy with the look
-ggplot(data = iris_modified, mapping = aes(x = Sepal.Width, y = Sepal.Length, color = Species)) +
-  geom_point() + 
-  theme_minimal() # theme options: https://ggplot2.tidyverse.org/reference/ggtheme.html
-```
-
----
-
-## Plot and text
-
-.pull-left[
-- Some text
-- goes here
-]
-.pull-right[
-```{r warning=FALSE, out.width="100%", fig.width=4, echo=FALSE}
-# see how I changed out.width and fig.width from defaults
-# to make the figure bigger
-ggplot(penguins, aes(x = bill_length_mm, y = species, color = species)) +
-  geom_boxplot() +
-  theme_minimal()
-```
-]
-
----
-
-# Tables
-
-If you want to generate a table, make sure it is in the HTML format (instead of Markdown or other formats), e.g.,
-
-```{r iris-table, echo = FALSE}
-kable(head(iris), format = "html")
-```
-
----
-
-# Images
-
-```{r castle, echo = FALSE, out.width = "60%", fig.align = "center", fig.cap = "Image credit: Photo by Enjoy Illinois."}
-include_graphics("img/chicago-fall.jpeg")
-```
+- Positive relationship detected
+- p ≈ 2e-09
+- But very weak:
+- R² ≈ 0.03
 
 
 ---
 
-# Feeling adventurous?
+# Model Improvement
 
-- Want to find out more about `xaringan`? See https://slides.yihui.name/xaringan/#1.
+- Adding soil group improves model:
+- R² increases to ~0.18
+- Soil type explains much more variation than latitude
+- Latitude alone is not a strong predictor
+---
 
-- You are welcomed to use the default styling of the slides. In fact, that's what I expect majority of you will do. You will differentiate yourself with the content of your presentation.
+# Interaction Effect
+- Relationship differs across soil types
+- Significant interaction for Regosol
+- Most groups show weak or no interaction
 
-- But some of you might want to play around with slide styling. The 
-`xaringanthemer` provides some solutions for this that: https://pkg.garrickadenbuie.com/xaringanthemer.
+---
 
-- And if you want more bells and whistles, there is also `xaringanExtra`: https://pkg.garrickadenbuie.com/xaringanExtra.
+## Horizon Contribution
+
+- Focus on mineral soils
+- Carbon distribution:
+- ~63% mineral horizons
+- ~37% organic horizons
+- Organic horizons still important
+
+---
+
+# Key Takeaways
+
+- Soil type is the main driver of carbon variation
+- Latitude shows a weak but significant trend
+- Relationships vary across soil types
+- Organic horizons contribute substantially, even in mineral soils
+---
+
