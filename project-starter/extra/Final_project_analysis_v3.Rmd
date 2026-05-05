@@ -1,0 +1,189 @@
+---
+title: "Final_project_analysis_v3"
+output: html_document
+---
+
+
+```{r setup, message=FALSE, warning=FALSE}
+
+library(tidyverse)
+
+library(broom)
+```
+
+
+1. Load Data
+
+```{r}
+df <- read_csv("../data/data_final_project.csv")
+
+glimpse(df)
+```
+
+2. Create Pedon-level Dataset
+
+```{r}
+pedon_df <- df %>%
+  filter(pedon_start == TRUE) %>%
+  mutate(
+    order_group = case_when(
+      str_detect(order, regex("Histosol|Folisol|Mesisol|Humisol|Cryo", ignore_case = TRUE)) ~ "Organic soils",
+      str_detect(order, regex("Podzol", ignore_case = TRUE)) ~ "Podzol",
+      TRUE ~ "Other"
+    )
+  ) %>%
+  select(pedon_id, order, order_group, total_c_1m, lat) %>%
+  filter(!is.na(total_c_1m), !is.na(order_group))
+
+pedon_df <- pedon_df %>%
+
+  mutate(
+
+    order_group = factor(
+
+      order_group,
+
+      levels = c("Organic soils", "Podzol", "Other")
+
+    )
+
+  )
+# check structure
+glimpse(pedon_df)
+
+# check sample sizes
+pedon_df %>% count(order_group)
+```
+
+3. Exploratory Analysis
+
+Boxplot: Soil Carbon by Soil Group
+
+```{r}
+ggplot(pedon_df, aes(x = order_group, y = total_c_1m, fill = order_group)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(width = 0.15, alpha = 0.1) +
+  theme_classic() +
+  labs(
+    title = "Soil Carbon by Soil Group",
+    x = "Soil Group",
+    y = "Total Carbon (0–1 m)"
+  )
+```
+
+
+4. ANOVA: Does Carbon Differ Across Soil Groups?
+```{r}
+aov_model <- aov(total_c_1m ~ order_group, data = pedon_df)
+summary(aov_model)
+```
+
+Group Median & Means
+
+```{r}
+pedon_df %>%
+  group_by(order_group) %>%
+  summarise(
+    mean_carbon = mean(total_c_1m, na.rm = TRUE),
+    median_carbon = median(total_c_1m, na.rm = TRUE),
+    sd_carbon = sd(total_c_1m, na.rm = TRUE),
+    n = n(),
+    .groups = "drop"
+  )
+```
+
+5. Regression: Carbon vs Latitude
+
+Filter realistic latitude range
+```{r}
+
+pedon_df_lat <- pedon_df %>%
+  filter(lat > 40, lat < 65)
+```
+
+Scatter plot + regression line
+
+```{r}
+ggplot(pedon_df_lat, aes(x = lat, y = total_c_1m)) +
+  geom_point(alpha = 0.2, size = 1.5) +
+  geom_smooth(method = "lm", color = "blue", linewidth = 1.2, se = TRUE) +
+  theme_classic(base_size = 13) +
+  labs(
+    title = "Soil Carbon vs Latitude",
+    x = "Latitude",
+    y = "Total Carbon (0–1 m)"
+  )
+```
+
+Simple Linear Regression
+```{r}
+lm_model <- lm(total_c_1m ~ lat, data = pedon_df_lat)
+summary(lm_model)
+```
+
+6. Improved Model: Add Soil Group
+```{r}
+lm_model2 <- lm(total_c_1m ~ lat + order_group, data = pedon_df_lat)
+
+summary(lm_model2)
+
+tidy(lm_model2)
+```
+
+Faceted visualization (by soil group)
+```{r}
+ggplot(pedon_df_lat, aes(x = lat, y = total_c_1m, color = order_group)) +
+  geom_point(alpha = 0.15, size = 1) +
+  geom_smooth(method = "lm", se = FALSE, linewidth = 1) +
+  facet_wrap(~ order_group) +
+  scale_x_continuous(
+    limits = c(48, 60),
+    breaks = seq(48, 60, by = 3)
+  ) +
+  theme_classic(base_size = 13) +
+  labs(
+    title = "Soil Carbon vs Latitude by Soil Group",
+    x = "Latitude",
+    y = "Total Carbon (0–1 m)"
+  )
+```
+
+7. Interaction Model
+```{r}
+lm_model3 <- lm(total_c_1m ~ lat * order_group, data = pedon_df_lat)
+
+summary(lm_model3)
+```
+
+
+8. Horizon Contribution in Mineral Soils
+```{r}
+mineral_horizon_summary <- df %>%
+  mutate(
+    order_group = case_when(
+      str_detect(order, regex("Histosol|Folisol|Mesisol|Humisol|Cryo", ignore_case = TRUE)) ~ "Organic soils",
+      str_detect(order, regex("Podzol", ignore_case = TRUE)) ~ "Podzol",
+      TRUE ~ "Other"
+    )
+  ) %>%
+  filter(order_group != "Organic soils") %>%
+  filter(!is.na(horizon_type)) %>%
+  group_by(horizon_type) %>%
+  summarise(
+    total_carbon = sum(ccontent_1m, na.rm = TRUE),
+    mean_carbon = mean(ccontent_1m, na.rm = TRUE),
+    n = n(),
+    .groups = "drop"
+  ) %>%
+  mutate(prop_carbon = total_carbon / sum(total_carbon))
+
+mineral_horizon_summary
+```
+
+9. Notes
+
+* Analysis conducted at pedon level (independent observations)
+* Soil classification simplified to improve interpretability
+* ANOVA used to test group differences
+* Regression used to explore spatial trends
+* Horizon analysis examines internal carbon distribution

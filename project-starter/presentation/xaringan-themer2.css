@@ -1,0 +1,90 @@
+body {
+  font-family: Arial, Arial;
+  color: #1B4332;
+}
+
+h1, h2, h3 {
+  color: #2F5D50;
+}
+
+a {
+  color: #A3B18A;
+}
+
+
+/* 强调 */
+strong {
+  color: #2F5D50;
+}
+
+.remark-slide-content.title-slide::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+/* ===== 标题页单独样式 ===== */
+
+.remark-slide-content.title-slide {
+  background-image: url("img/tree-soil.png"); /* 你的背景图路径 */
+  background-size: cover;
+  background-position: center;
+
+  color: white !important;
+  font-family: "Arial", Arial, Arial; /* 不用Georgia */
+}
+
+/* 标题文字 */
+.title-slide h1,
+.title-slide h2,
+.title-slide h3 {
+  color: white !important;
+}
+
+/* 作者、日期等 */
+.title-slide p {
+  color: white !important;
+}
+
+/* ===== 普通页面：深色背景（森林夜间风） ===== */
+
+.remark-slide-content:not(.title-slide) {
+  background-color: #1B4332;   /* 深森林绿 */
+  color: #F1FAEE;              /* 浅米白 */
+}
+
+/* 标题文字 */
+.remark-slide-content:not(.title-slide) h1,
+.remark-slide-content:not(.title-slide) h2,
+.remark-slide-content:not(.title-slide) h3 {
+  color: #D8F3DC;   /* 浅绿色（柔和一点） */
+}
+
+/* 强调（加粗） */
+.remark-slide-content:not(.title-slide) strong {
+  color: #A3B18A;
+}
+
+/* 链接（如果有） */
+.remark-slide-content:not(.title-slide) a {
+  color: #95D5B2;
+}
+
+.remark-slide-content:not(.title-slide) {
+  padding: 40px;
+}
+/* 调整每页主标题大小 */
+.remark-slide-content h1 {
+  font-size: 45px;
+}
+
+/* 调整副标题 */
+.remark-slide-content h2 {
+  font-size: 32px;
+}
+
+/* 小标题 */
+.remark-slide-content h3 {
+  font-size: 30px;
+}

@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <html lang="" xml:lang="">
   <head>
-    <title>Soil Carbon Variation in a Coastal Temperate Rainforest</title>
+    <title>Soil Carbon Variation across soil types and latitude</title>
     <meta charset="utf-8" />
     <meta name="author" content="Wen Du" />
-    <meta name="date" content="2026-04-27" />
+    <meta name="date" content="2026-05-05" />
     <script src="libs/header-attrs-2.31/header-attrs.js"></script>
-    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+    <link rel="stylesheet" href="xaringan-themer2.css" type="text/css" />
   </head>
   <body>
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
 .title[
-# Soil Carbon Variation in a Coastal Temperate Rainforest
+# Soil Carbon Variation across soil types and latitude
 ]
 .author[
 ### Wen Du
@@ -22,7 +22,7 @@ class: center, middle, inverse, title-slide
 ### University of Illinois at Chicago
 ]
 .date[
-### 2026-04-27
+### 2026-05-05
 ]
 
 ---
@@ -35,108 +35,106 @@ class: center, middle, inverse, title-slide
 
 
 
-``` r
-style_xaringan(
-  title_slide_background_image = "img/tree-soil.png"
-)
-```
+
+class:middle
+
+# Introduction 
 
 
-class: center, middle
+- **Dataset**: North Pacific Coastal temperate rainforest (McNicol et al., 2019)
 
-## A statement of the overall goal / research question
+ - Two main types of soil in study area: 
+   - mineral (Spodosol, figure (b)), and Organic (Histosol, figure(d)).
+&lt;img src="img/field_photos_of_soils.png" alt="" width="35%" style="display: block; margin: auto;" /&gt;
+
+- **Questions:**
+ -  Do soil carbon values differ across soil types?
+
+ -  Is there a relationship between latitude and soil carbon in the study area?
+ 
+ - Does this relationship vary among soil types?
+ 
 
 ---
 
-class: inverse, center, middle
-
-# Soil Carbon Variation Across Soil Types and Latitude
-
-### data from the North Pacific coastal temperate rainforest
----
-
-# Research Questions
-
-- Do soil carbon values differ across soil types?
-
-- Is there a relationship between latitude and soil carbon?
-
-- Does this relationship vary among soil types?
-
-- How important are organic horizons in mineral soils?
----
-
-# Data &amp; Approach
-
-- Dataset: North Pacific Coastal temperate rainforest (McNicol et al., 2019)
+class: middle
+# Methods
 
 - Analysis at **pedon level**
 
-- Soil classified by **soil order** (not horizons)
+- **Soil groups** simplified:
 
-- Methods:
+ -  Organic
 
-  - Compare soil carbon across soil types (ANOVA)
+ -  Podzol
 
-  - Examine relationship with latitude (regression)
+ -  Other
 
-  - Test whether this relationship differs across soil types
+- **Methods:**
+
+ - Compare soil carbon across soil orders (ANOVA)
+
+ - Examine relationship with latitude (linear regression)
+
+ - Test whether this relationship varies among soil orders
+ 
 
 ---
-# Soil Type Differences
+
+class: middle,center
+
+# Result &amp; Discussion
+
+---
+##  Soil Carbon by Soil Type
 
 
 
-&lt;img src="img/boxplot.png" alt="" width="60%" style="display: block; margin: auto;" /&gt;
-- Strong differences across soil groups
-- Organic soils show highest carbon
+&lt;img src="img/boxplot2.png" alt="" width="45%" style="display: block; margin: auto;" /&gt;
+- Clear differences
+
+- Organic soils show highest carbon but Podzol and other soils has high extreme values.
+
 - ANOVA: p &lt; 2e-16
----
-
-# Latitude vs Soil Carbon
-&lt;img src="img/regression-plot.png" alt="" width="60%" style="display: block; margin: auto;" /&gt;
-
-- Positive relationship detected
-- p ≈ 2e-09
-- But very weak:
-- R² ≈ 0.03
-
 
 ---
+class: middle
+## Carbon vs Latitude
+&lt;img src="img/simple_regression_plot.png" alt="" width="45%" style="display: block; margin: auto;" /&gt;
+- Positive trend (estimate ≈ 11)
 
-# Model Improvement
+- Statistically significant (p ≈ 2e-09)
 
-- Adding soil group improves model:
-- R² increases to ~0.18
-- Soil type explains much more variation than latitude
-- Latitude alone is not a strong predictor
----
+- But very weak (R² ≈ 0.03)
 
-# Interaction Effect
-- Relationship differs across soil types
-- Significant interaction for Regosol
-- Most groups show weak or no interaction
+
 
 ---
 
-## Horizon Contribution
+## Adding Soil Type Improves Model
 
-- Focus on mineral soils
-- Carbon distribution:
-- ~63% mineral horizons
-- ~37% organic horizons
-- Organic horizons still important
+&lt;img src="img/facet_regression_plot.png" alt="" width="45%" style="display: block; margin: auto;" /&gt;
+
+- **Adding soil group** improves model:
+
+ -  R² increases to ~0.14, estimate drops to 5.6
+ 
+ - Soil type explains more variation than latitude
+ 
+ - Latitude is not the main driver
+ 
+
+
 
 ---
-
+class: middle
 # Key Takeaways
 
-- Soil type is the main driver of carbon variation
-- Latitude shows a weak but significant trend
-- Relationships vary across soil types
-- Organic horizons contribute substantially, even in mineral soils
----
+- Soil carbon was found to vary strongly among soil groups
 
+- Organic soils generally have higher median and mean carbon content, while mineral soils have more extreme high values.
+
+- Soil type is the primary driver of soil carbon variation, while latitude plays a secondary and relatively weak role. 
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>

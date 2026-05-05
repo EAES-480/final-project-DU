@@ -1,11 +1,11 @@
 ---
-title: "Soil Carbon Variation in a Coastal Temperate Rainforest"
+title: "Soil Carbon Variation across soil types and latitude"
 author: "Wen Du"
 institute: "University of Illinois at Chicago"
 date: "`r Sys.Date()`"
 output:
   xaringan::moon_reader:
-    css: xaringan-themer.css
+    css: xaringan-themer2.css
     lib_dir: libs
     nature:
       ratio: "16:9"
@@ -20,6 +20,8 @@ library(tidyverse)
 library(knitr)
 library(xaringanthemer)
 library(broom)
+
+
 ```
 
 ```{r setup, include=FALSE}
@@ -28,134 +30,122 @@ knitr::opts_chunk$set(fig.retina = 3, dpi = 300, fig.width = 6, fig.asp = 0.618,
 ```
 
 ```{r load-data, include=FALSE}
-# 1. Load your data here
-df <- read_csv("../data/data_final_project.csv")
 
-# 2. Create Pedon-level Dataset
-pedon_df <- df %>%
-  filter(pedon_start == TRUE) %>%
-  mutate(
-    order_group = case_when(
-      str_detect(order, regex("Histosol|Folisol|Mesisol|Humisol|Cryo", ignore_case = TRUE)) ~ "Organic soils",
-      str_detect(order, regex("Podzol", ignore_case = TRUE)) ~ "Podzol",
-      str_detect(order, regex("Brunisol|Brunisolic", ignore_case = TRUE)) ~ "Brunisol",
-      str_detect(order, regex("Gleysol|Gleysolic", ignore_case = TRUE)) ~ "Gleysol",
-      str_detect(order, regex("Regosol|Regosolic", ignore_case = TRUE)) ~ "Regosol",
-      TRUE ~ "Other"
-    )
-  ) %>%
-  select(pedon_id, order, order_group, total_c_1m, lat) %>%
-  filter(!is.na(total_c_1m), !is.na(order_group))
-# check structure
-glimpse(pedon_df)
 
 # check sample sizes
-pedon_df %>% count(order)
+
 ```
 
-```{r}
+```{r, include = FALSE}
 style_xaringan(
   title_slide_background_image = "img/tree-soil.png"
 )
 ```
 
+class:middle
 
-class: center, middle
+# Introduction 
 
-## A statement of the overall goal / research question
+
+- **Dataset**: North Pacific Coastal temperate rainforest (McNicol et al., 2019)
+
+ - Two main types of soil in study area: 
+   - mineral (Spodosol, figure (b)), and Organic (Histosol, figure(d)).
+```{r echo = FALSE, out.width = "35%", fig.align = "center"}
+include_graphics("img/field_photos_of_soils.png")
+```
+
+- **Questions:**
+ -  Do soil carbon values differ across soil types?
+
+ -  Is there a relationship between latitude and soil carbon in the study area?
+ 
+ - Does this relationship vary among soil types?
+ 
 
 ---
 
-class: inverse, center, middle
-
-# Soil Carbon Variation Across Soil Types and Latitude
-
-### data from the North Pacific coastal temperate rainforest
----
-
-# Research Questions
-
-- Do soil carbon values differ across soil types?
-
-- Is there a relationship between latitude and soil carbon?
-
-- Does this relationship vary among soil types?
-
-- How important are organic horizons in mineral soils?
----
-
-# Data & Approach
-
-- Dataset: North Pacific Coastal temperate rainforest (McNicol et al., 2019)
+class: middle
+# Methods
 
 - Analysis at **pedon level**
 
-- Soil classified by **soil order** (not horizons)
+- **Soil groups** simplified:
 
-- Methods:
+ -  Organic
 
-  - Compare soil carbon across soil types (ANOVA)
+ -  Podzol
 
-  - Examine relationship with latitude (regression)
+ -  Other
 
-  - Test whether this relationship differs across soil types
+- **Methods:**
+
+ - Compare soil carbon across soil orders (ANOVA)
+
+ - Examine relationship with latitude (linear regression)
+
+ - Test whether this relationship varies among soil orders
+ 
 
 ---
-# Soil Type Differences
+
+class: middle,center
+
+# Result & Discussion
+
+---
+##  Soil Carbon by Soil Type
 
 
 
-```{r echo = FALSE, out.width = "60%", fig.align = "center"}
-include_graphics("img/boxplot.png")
+```{r echo = FALSE, out.width = "45%", fig.align = "center"}
+include_graphics("img/boxplot2.png")
 ```
-- Strong differences across soil groups
-- Organic soils show highest carbon
+- Clear differences
+
+- Organic soils show highest carbon but Podzol and other soils has high extreme values.
+
 - ANOVA: p < 2e-16
+
+---
+class: middle
+## Carbon vs Latitude
+```{r echo = FALSE, out.width = "45%", fig.align = "center"}
+include_graphics("img/simple_regression_plot.png")
+```
+- Positive trend (estimate ≈ 11)
+
+- Statistically significant (p ≈ 2e-09)
+
+- But very weak (R² ≈ 0.03)
+
+
+
 ---
 
-# Latitude vs Soil Carbon
-```{r castle, echo = FALSE, out.width = "60%", fig.align = "center"}
-include_graphics("img/regression-plot.png")
+## Adding Soil Type Improves Model
+
+```{r castle, echo = FALSE, out.width = "45%", fig.align = "center"}
+include_graphics("img/facet_regression_plot.png")
 ```
 
-- Positive relationship detected
-- p ≈ 2e-09
-- But very weak:
-- R² ≈ 0.03
+- **Adding soil group** improves model:
+
+ -  R² increases to ~0.14, estimate drops to 5.6
+ 
+ - Soil type explains more variation than latitude
+ 
+ - Latitude is not the main driver
+ 
 
 
----
-
-# Model Improvement
-
-- Adding soil group improves model:
-- R² increases to ~0.18
-- Soil type explains much more variation than latitude
-- Latitude alone is not a strong predictor
----
-
-# Interaction Effect
-- Relationship differs across soil types
-- Significant interaction for Regosol
-- Most groups show weak or no interaction
 
 ---
-
-## Horizon Contribution
-
-- Focus on mineral soils
-- Carbon distribution:
-- ~63% mineral horizons
-- ~37% organic horizons
-- Organic horizons still important
-
----
-
+class: middle
 # Key Takeaways
 
-- Soil type is the main driver of carbon variation
-- Latitude shows a weak but significant trend
-- Relationships vary across soil types
-- Organic horizons contribute substantially, even in mineral soils
----
+- Soil carbon was found to vary strongly among soil groups
 
+- Organic soils generally have higher median and mean carbon content, while mineral soils have more extreme high values.
+
+- Soil type is the primary driver of soil carbon variation, while latitude plays a secondary and relatively weak role. 
