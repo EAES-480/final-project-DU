@@ -41,7 +41,7 @@ Overall, soil carbon was found to vary strongly among soil groups. Organic soils
 
 ## Presentation
 
-The presentation slides can be found here.
+The presentation slides can be found in presentation/presentation.html.
 
 ---
 
